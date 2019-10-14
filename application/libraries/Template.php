@@ -717,6 +717,7 @@ class Template
 	private function _load_view($view, array $data, $parse_view = TRUE, $override_view_path = NULL)
 	{
 		// Sevear hackery to load views from custom places AND maintain compatibility with Modular Extensions
+		
 		if ($override_view_path !== NULL)
 		{
 			if ($this->_parser_enabled === TRUE AND $parse_view === TRUE)

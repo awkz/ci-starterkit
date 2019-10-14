@@ -40,7 +40,84 @@ class Auth extends CI_Controller {
 				$this->data['users'][$k]->groups = $this->ion_auth->get_users_groups($user->id)->result();
 			}
 
-			$this->_render_page('auth/index', $this->data);
+			// $this->_render_page('auth/index', $this->data);
+			$this->data['custom_js'] = "<script>
+            $(document).ready(function () {
+                $('#datatable-responsive').DataTable();
+            });
+		</script>";
+			$this->template->set_layout('backend');
+			$this->template->title('User Manager');
+			$this->template->set_partial('menu', 'partials/menu');
+			$this->template->build('auth/index',$this->data);
+		}
+	}
+	// mod function
+	public function groups(){
+		if (!$this->ion_auth->logged_in() || !$this->ion_auth->is_admin())
+        {
+            redirect('auth', 'refresh');
+		}
+		$this->data['groups'] = $this->ion_auth->groups()->result();
+		$this->data['custom_js'] = "<script>
+            $(document).ready(function () {
+                $('#datatable-responsive').DataTable();
+            });
+		</script>";
+			$this->template->set_layout('backend');
+			$this->template->title('Groups Manager');
+			$this->template->set_partial('menu', 'partials/menu');
+			$this->template->build('auth/groups',$this->data);
+	}
+
+	// delete the group
+	function delete_group($id = NULL)
+	{
+		if (!$this->ion_auth->logged_in() || !$this->ion_auth->is_admin())
+		{
+			// redirect them to the home page because they must be an administrator to view this
+			return show_error('You must be an administrator to view this page.');
+		}
+
+		$id = (int) $id;
+
+		$this->load->library('form_validation');
+		$this->form_validation->set_rules('confirm', $this->lang->line('deactivate_validation_confirm_label'), 'required');
+		$this->form_validation->set_rules('id', $this->lang->line('deactivate_validation_user_id_label'), 'required|alpha_numeric');
+
+		if ($this->form_validation->run() == FALSE)
+		{
+			// insert csrf check
+			$this->data['csrf'] = $this->_get_csrf_nonce();
+			$this->data['group'] = $this->ion_auth->group($id)->result();
+
+			// $this->_render_page('auth/deactivate_user', $this->data);
+			$this->template->set_layout('backend');
+			$this->template->title('Delete Group');
+			$this->template->set_partial('menu', 'partials/menu');
+			$this->template->build('auth/delete_group',$this->data);
+		}
+		else
+		{
+			// do we really want to deactivate?
+			if ($this->input->post('confirm') == 'yes')
+			{
+				// do we have a valid request?
+				if ($this->_valid_csrf_nonce() === FALSE || $id != $this->input->post('id'))
+				{
+					show_error($this->lang->line('error_csrf'));
+				}
+
+				// do we have the right userlevel?
+				if ($this->ion_auth->logged_in() && $this->ion_auth->is_admin())
+				{
+					$this->ion_auth->delete_group($id);
+				}
+				
+			}
+
+			// redirect them back to the auth page
+			redirect('auth/groups', 'refresh');
 		}
 	}
 
@@ -391,9 +468,13 @@ class Auth extends CI_Controller {
 		{
 			// insert csrf check
 			$this->data['csrf'] = $this->_get_csrf_nonce();
-			$this->data['user'] = $this->ion_auth->user($id)->row();
+			$this->data['user'] = $this->ion_auth->user($id)->result();
 
-			$this->_render_page('auth/deactivate_user', $this->data);
+			// $this->_render_page('auth/deactivate_user', $this->data);
+			$this->template->set_layout('backend');
+			$this->template->title('Deactivate User');
+			$this->template->set_partial('menu', 'partials/menu');
+			$this->template->build('auth/deactivate_user',$this->data);
 		}
 		else
 		{
@@ -410,6 +491,56 @@ class Auth extends CI_Controller {
 				if ($this->ion_auth->logged_in() && $this->ion_auth->is_admin())
 				{
 					$this->ion_auth->deactivate($id);
+				}
+			}
+
+			// redirect them back to the auth page
+			redirect('auth', 'refresh');
+		}
+	}
+
+	// delete the user
+	function delete_user($id = NULL)
+	{
+		if (!$this->ion_auth->logged_in() || !$this->ion_auth->is_admin())
+		{
+			// redirect them to the home page because they must be an administrator to view this
+			return show_error('You must be an administrator to view this page.');
+		}
+
+		$id = (int) $id;
+
+		$this->load->library('form_validation');
+		$this->form_validation->set_rules('confirm', $this->lang->line('deactivate_validation_confirm_label'), 'required');
+		$this->form_validation->set_rules('id', $this->lang->line('deactivate_validation_user_id_label'), 'required|alpha_numeric');
+
+		if ($this->form_validation->run() == FALSE)
+		{
+			// insert csrf check
+			$this->data['csrf'] = $this->_get_csrf_nonce();
+			$this->data['user'] = $this->ion_auth->user($id)->result();
+
+			// $this->_render_page('auth/deactivate_user', $this->data);
+			$this->template->set_layout('backend');
+			$this->template->title('Delete User');
+			$this->template->set_partial('menu', 'partials/menu');
+			$this->template->build('auth/delete_user',$this->data);
+		}
+		else
+		{
+			// do we really want to deactivate?
+			if ($this->input->post('confirm') == 'yes')
+			{
+				// do we have a valid request?
+				if ($this->_valid_csrf_nonce() === FALSE || $id != $this->input->post('id'))
+				{
+					show_error($this->lang->line('error_csrf'));
+				}
+
+				// do we have the right userlevel?
+				if ($this->ion_auth->logged_in() && $this->ion_auth->is_admin())
+				{
+					$this->ion_auth->delete_user($id);
 				}
 			}
 
@@ -478,56 +609,77 @@ class Auth extends CI_Controller {
             $this->data['first_name'] = array(
                 'name'  => 'first_name',
                 'id'    => 'first_name',
-                'type'  => 'text',
+				'type'  => 'text',
+				'class' => 'form-control',
+				'placeholder' => 'John',
                 'value' => $this->form_validation->set_value('first_name'),
             );
             $this->data['last_name'] = array(
                 'name'  => 'last_name',
                 'id'    => 'last_name',
-                'type'  => 'text',
+				'type'  => 'text',
+				'class' => 'form-control',
+				'placeholder' => 'Doe',
                 'value' => $this->form_validation->set_value('last_name'),
             );
             $this->data['identity'] = array(
                 'name'  => 'identity',
                 'id'    => 'identity',
-                'type'  => 'text',
+				'type'  => 'text',
+				'class' => 'form-control',
+				'placeholder' => 'Identity',
                 'value' => $this->form_validation->set_value('identity
                 '),
             );
             $this->data['email'] = array(
                 'name'  => 'email',
                 'id'    => 'email',
-                'type'  => 'text',
+				'type'  => 'text',
+				'class' => 'form-control',
+				'placeholder' => 'nama@email.com',
                 'value' => $this->form_validation->set_value('email'),
             );
             $this->data['company'] = array(
                 'name'  => 'company',
                 'id'    => 'company',
-                'type'  => 'text',
+				'type'  => 'text',
+				'class' => 'form-control',
+				'placeholder' => 'Company',
                 'value' => $this->form_validation->set_value('company'),
             );
             $this->data['phone'] = array(
                 'name'  => 'phone',
                 'id'    => 'phone',
-                'type'  => 'text',
+				'type'  => 'text',
+				'class' => 'form-control',
+				'placeholder' => '+62',
                 'value' => $this->form_validation->set_value('phone'),
             );
             $this->data['password'] = array(
                 'name'  => 'password',
                 'id'    => 'password',
-                'type'  => 'password',
+				'type'  => 'password',
+				'class' => 'form-control',
+				'placeholder' => 'Password',
                 'value' => $this->form_validation->set_value('password'),
             );
             $this->data['password_confirm'] = array(
                 'name'  => 'password_confirm',
                 'id'    => 'password_confirm',
-                'type'  => 'password',
+				'type'  => 'password',
+				'class' => 'form-control',
+				'placeholder' => 'Confirm Password',
                 'value' => $this->form_validation->set_value('password_confirm'),
             );
 
-            $this->_render_page('auth/create_user', $this->data);
+			// $this->_render_page('auth/create_user', $this->data);
+			$this->template->set_layout('backend');
+			$this->template->title('Create User');
+			$this->template->set_partial('menu', 'partials/menu');
+			$this->template->build('auth/create_user',$this->data);
         }
-    }
+	}
+	
 
 	// edit a user
 	function edit_user($id)
@@ -539,7 +691,7 @@ class Auth extends CI_Controller {
 			redirect('auth', 'refresh');
 		}
 
-		$user = $this->ion_auth->user($id)->row();
+		$user = $this->ion_auth->user($id)->result();
 		$groups=$this->ion_auth->groups()->result_array();
 		$currentGroups = $this->ion_auth->get_users_groups($id)->result();
 
@@ -564,12 +716,11 @@ class Auth extends CI_Controller {
 				$this->form_validation->set_rules('password_confirm', $this->lang->line('edit_user_validation_password_confirm_label'), 'required');
 			}
 
-			if ($this->form_validation->run() === TRUE)
+			if ($this->form_validation->run() != TRUE)
 			{
 				$data = array(
 					'first_name' => $this->input->post('first_name'),
 					'last_name'  => $this->input->post('last_name'),
-					'company'    => $this->input->post('company'),
 					'phone'      => $this->input->post('phone'),
 				);
 
@@ -599,7 +750,7 @@ class Auth extends CI_Controller {
 				}
 
 			// check to see if we are updating the user
-			   if($this->ion_auth->update($user->id, $data))
+			   if($this->ion_auth->update($user[0]->id, $data))
 			    {
 			    	// redirect them back to the admin page if admin, or to the base url if non admin
 				    $this->session->set_flashdata('message', $this->ion_auth->messages() );
@@ -646,38 +797,50 @@ class Auth extends CI_Controller {
 			'name'  => 'first_name',
 			'id'    => 'first_name',
 			'type'  => 'text',
-			'value' => $this->form_validation->set_value('first_name', $user->first_name),
+			'class' => 'form-control',
+			'value' => $this->form_validation->set_value('first_name', $user[0]->first_name),
 		);
 		$this->data['last_name'] = array(
 			'name'  => 'last_name',
 			'id'    => 'last_name',
 			'type'  => 'text',
-			'value' => $this->form_validation->set_value('last_name', $user->last_name),
+			'class' => 'form-control',
+			'value' => $this->form_validation->set_value('last_name', $user[0]->last_name),
 		);
 		$this->data['company'] = array(
 			'name'  => 'company',
 			'id'    => 'company',
 			'type'  => 'text',
-			'value' => $this->form_validation->set_value('company', $user->company),
+			'class' => 'form-control',
+			'value' => $this->form_validation->set_value('company', $user[0]->company),
 		);
 		$this->data['phone'] = array(
 			'name'  => 'phone',
 			'id'    => 'phone',
 			'type'  => 'text',
-			'value' => $this->form_validation->set_value('phone', $user->phone),
+			'class' => 'form-control',
+			'value' => $this->form_validation->set_value('phone', $user[0]->phone),
 		);
 		$this->data['password'] = array(
 			'name' => 'password',
 			'id'   => 'password',
-			'type' => 'password'
+			'type' => 'password',
+			'class' => 'form-control',
+			'placeholder' => 'blank if not change'
 		);
 		$this->data['password_confirm'] = array(
 			'name' => 'password_confirm',
 			'id'   => 'password_confirm',
-			'type' => 'password'
+			'type' => 'password',
+			'class' => 'form-control',
+			'placeholder' => 'blank if not change'
 		);
 
-		$this->_render_page('auth/edit_user', $this->data);
+		// $this->_render_page('auth/edit_user', $this->data);
+		$this->template->set_layout('backend');
+		$this->template->title('Edit User');
+		$this->template->set_partial('menu', 'partials/menu');
+		$this->template->build('auth/edit_user',$this->data);
 	}
 
 	// create a new group
@@ -701,7 +864,7 @@ class Auth extends CI_Controller {
 				// check to see if we are creating the group
 				// redirect them back to the admin page
 				$this->session->set_flashdata('message', $this->ion_auth->messages());
-				redirect("auth", 'refresh');
+				redirect("auth/groups", 'refresh');
 			}
 		}
 		else
@@ -714,16 +877,24 @@ class Auth extends CI_Controller {
 				'name'  => 'group_name',
 				'id'    => 'group_name',
 				'type'  => 'text',
+				'class' => 'form-control',
+				'placeholder' => 'Group Name',
 				'value' => $this->form_validation->set_value('group_name'),
 			);
 			$this->data['description'] = array(
 				'name'  => 'description',
 				'id'    => 'description',
 				'type'  => 'text',
+				'class' => 'form-control',
+				'placeholder' => 'Group Description',
 				'value' => $this->form_validation->set_value('description'),
 			);
 
-			$this->_render_page('auth/create_group', $this->data);
+			// $this->_render_page('auth/create_group', $this->data);
+			$this->template->set_layout('backend');
+			$this->template->title('Create group');
+			$this->template->set_partial('menu', 'partials/menu');
+			$this->template->build('auth/create_group',$this->data);
 		}
 	}
 
@@ -743,7 +914,7 @@ class Auth extends CI_Controller {
 			redirect('auth', 'refresh');
 		}
 
-		$group = $this->ion_auth->group($id)->row();
+		$group = $this->ion_auth->group($id)->result();
 
 		// validate form input
 		$this->form_validation->set_rules('group_name', $this->lang->line('edit_group_validation_name_label'), 'required|alpha_dash');
@@ -762,7 +933,7 @@ class Auth extends CI_Controller {
 				{
 					$this->session->set_flashdata('message', $this->ion_auth->errors());
 				}
-				redirect("auth", 'refresh');
+				redirect("auth/groups", 'refresh');
 			}
 		}
 
@@ -772,23 +943,31 @@ class Auth extends CI_Controller {
 		// pass the user to the view
 		$this->data['group'] = $group;
 
-		$readonly = $this->config->item('admin_group', 'ion_auth') === $group->name ? 'readonly' : '';
+		$readonly = $this->config->item('admin_group', 'ion_auth') === $group[0]->name ? 'readonly' : '';
 
 		$this->data['group_name'] = array(
 			'name'    => 'group_name',
 			'id'      => 'group_name',
 			'type'    => 'text',
-			'value'   => $this->form_validation->set_value('group_name', $group->name),
+			'class' => 'form-control',
+			'placeholder' => 'Group name',
+			'value'   => $this->form_validation->set_value('group_name', $group[0]->name),
 			$readonly => $readonly,
 		);
 		$this->data['group_description'] = array(
 			'name'  => 'group_description',
 			'id'    => 'group_description',
 			'type'  => 'text',
-			'value' => $this->form_validation->set_value('group_description', $group->description),
+			'class' => 'form-control',
+			'placeholder' => 'Group Description',
+			'value' => $this->form_validation->set_value('group_description', $group[0]->description),
 		);
 
-		$this->_render_page('auth/edit_group', $this->data);
+		// $this->_render_page('auth/edit_group', $this->data);
+		$this->template->set_layout('backend');
+		$this->template->title('Edit group');
+		$this->template->set_partial('menu', 'partials/menu');
+		$this->template->build('auth/edit_group',$this->data);
 	}
 
 

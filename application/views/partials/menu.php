@@ -1,5 +1,5 @@
         <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="<?php echo site_url(); ?>" class="nav-link">
             <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>
                 Dashboard
@@ -7,6 +7,55 @@
             </a>
         </li>
         <?php
+        if ($this->ion_auth->in_group(array('admin'))){
+        ?>
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-users"></i>
+              <p>
+                Data Kriteria
+              </p>
+            </a>
+        </li>
+        <?php
+        }
+        if ($this->ion_auth->in_group(array('admin'))){
+        ?>
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-users"></i>
+              <p>
+                Data Alternatif
+              </p>
+            </a>
+        </li>
+        <?php
+        }
+        if ($this->ion_auth->in_group(array('admin'))){
+        ?>
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-users"></i>
+              <p>
+                Analisa
+              </p>
+            </a>
+        </li>
+        <?php
+        }
+        if ($this->ion_auth->in_group(array('admin'))){
+        ?>
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-users"></i>
+              <p>
+                Perhitungan
+              </p>
+            </a>
+        </li>
+        <?php
+        }
+        
         if ($this->ion_auth->in_group(array('admin'))){
         ?>
         <li class="nav-item">
