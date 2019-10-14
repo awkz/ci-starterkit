@@ -26,7 +26,8 @@
   <!-- /.login-logo -->
   <div class="card">
     <div class="card-body login-card-body">
-      <p class="login-box-msg">Sign in to start your session</p>
+      <h3 class="login-box-msg"><?php echo lang('login_heading');?></h3>
+      <p><?php echo lang('login_subheading');?></p>
         <?php if($message){ ?>
         <div class="alert alert-danger" role="alert">
             <?php echo $message;?>
@@ -65,7 +66,10 @@
           <!-- /.col -->
         </div>
       </form>
-
+      
+      <p class="mb-1">
+        <a href="<?php echo site_url('auth/forgot_password'); ?>">I forgot my password</a>
+      </p>
     </div>
     <!-- /.login-card-body -->
   </div>

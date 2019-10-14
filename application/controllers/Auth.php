@@ -219,17 +219,23 @@ class Auth extends CI_Controller {
 				'name' => 'old',
 				'id'   => 'old',
 				'type' => 'password',
+				'class' => 'form-control',
+				'placeholder' => 'old password'
 			);
 			$this->data['new_password'] = array(
 				'name'    => 'new',
 				'id'      => 'new',
 				'type'    => 'password',
+				'class' => 'form-control',
+				'placeholder' => 'new password',
 				'pattern' => '^.{'.$this->data['min_password_length'].'}.*$',
 			);
 			$this->data['new_password_confirm'] = array(
 				'name'    => 'new_confirm',
 				'id'      => 'new_confirm',
 				'type'    => 'password',
+				'class' => 'form-control',
+				'placeholder' => 'new password conform',
 				'pattern' => '^.{'.$this->data['min_password_length'].'}.*$',
 			);
 			$this->data['user_id'] = array(
@@ -240,7 +246,11 @@ class Auth extends CI_Controller {
 			);
 
 			// render
-			$this->_render_page('auth/change_password', $this->data);
+			// $this->_render_page('auth/change_password', $this->data);
+			$this->template->set_layout('backend');
+			$this->template->title('Change Password');
+			$this->template->set_partial('menu', 'partials/menu');
+			$this->template->build('auth/change_password',$this->data);
 		}
 		else
 		{
@@ -281,6 +291,8 @@ class Auth extends CI_Controller {
 			// setup the input
 			$this->data['email'] = array('name' => 'email',
 				'id' => 'email',
+				'class' => 'form-control',
+				'placeholder' => 'nama@email.com'
 			);
 
 			if ( $this->config->item('identity', 'ion_auth') != 'email' ){
@@ -826,14 +838,14 @@ class Auth extends CI_Controller {
 			'id'   => 'password',
 			'type' => 'password',
 			'class' => 'form-control',
-			'placeholder' => 'blank if not change'
+			'placeholder' => 'blank if not changing password'
 		);
 		$this->data['password_confirm'] = array(
 			'name' => 'password_confirm',
 			'id'   => 'password_confirm',
 			'type' => 'password',
 			'class' => 'form-control',
-			'placeholder' => 'blank if not change'
+			'placeholder' => 'blank if not changing password'
 		);
 
 		// $this->_render_page('auth/edit_user', $this->data);

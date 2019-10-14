@@ -7,13 +7,13 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="field-1" class="control-label">Fisrt Name</label>
+                            <label for="field-1" class="control-label"><?php echo lang('create_user_fname_label');?></label>
                             <?php echo form_input($first_name);?>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="field-1" class="control-label">Last Name</label>
+                            <label for="field-1" class="control-label"><?php echo lang('create_user_lname_label');?></label>
                             <?php echo form_input($last_name);?>
                         </div>
                     </div>
@@ -31,7 +31,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label for="field-1" class="control-label">Email</label>
+                            <label for="field-1" class="control-label"><?php echo lang('create_user_email_label');?></label>
                             <?php echo form_input($email);?>
                         </div>
                     </div>
@@ -39,7 +39,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label for="field-1" class="control-label">Phone</label>
+                            <label for="field-1" class="control-label"><?php echo lang('create_user_phone_label');?></label>
                             <?php echo form_input($phone);?>
                         </div>
                     </div>
@@ -47,13 +47,13 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="field-1" class="control-label">Password</label>
+                            <label for="field-1" class="control-label"><?php echo lang('create_user_password_label');?></label>
                             <?php echo form_input($password);?>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="field-1" class="control-label">Password Confirm</label>
+                            <label for="field-1" class="control-label"><?php echo lang('create_user_password_confirm_label');?></label>
                             <?php echo form_input($password_confirm);?>
                         </div>
                     </div>

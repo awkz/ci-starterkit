@@ -7,7 +7,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label for="field-1" class="control-label">Group Name</label>
+                            <label for="field-1" class="control-label"><?php echo lang('create_group_name_label');?></label>
                             <?php echo form_input($group_name);?>
                         </div>
                     </div>
@@ -16,7 +16,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label for="field-1" class="control-label">Description</label>
+                            <label for="field-1" class="control-label"><?php echo lang('create_group_desc_label');?></label>
                             <?php echo form_input($description);?>
                         </div>
                     </div>
